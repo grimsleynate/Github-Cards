@@ -2,14 +2,8 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import * as serviceWorker from './serviceWorker';
+import axios from 'axios';
 
-//Test data in an array, used to make sure our cards fill out properly
-const testData = [
-  {name: "Dan Abramov", avatar_url: "https://avatars0.githubusercontent.com/u/810438?v=4", company: "Facebook"},
-  {name: "Sophie Alpert", avatar_url: "https://avatars2.githubusercontent.com/u/6820?v=4", company: "Facebook"},
-  {name: "Sebastian Markbåge", avatar_url: "https://avatars2.githubusercontent.com/u/63648?v=4", company: "Facebook"},
-  {name: "Nathaniel Grimsley", avatar_url: "https://avatars3.githubusercontent.com/u/30242518?v=4", company: "Deadhead Media"}
-];
 //Card component for holding all the information about each person.
 class Card extends React.Component {
   render () {
@@ -29,21 +23,25 @@ class Card extends React.Component {
 //CardList component that returns an array of Cards
 const CardList = (props) => {
   return (<div> 
-    {/* .map() creates a new array out of an established array.
+    {/* .map() creates a new array out of an established array
       This creates an array of Card components, and pushes an
       object from testData into each*/}
-    {props.profiles.map(profile=><Card {...profile}/>)}
+    {props.profiles.map(profile=><Card key={profile.id} {...profile}/>)}
   </div>);
 };
 
 //Form manages user input
 class Form extends React.Component {
+  state = { userName: '',}
   //every function comes with an event argument, you can name it whatever you want.  
   //this allows you to use native event-related functions
-  handleSubmit = (event) => {
+  handleSubmit = async (event) => {
     //this prevents the page from refreshing when you submit.
     event.preventDefault();
-    console.log();
+    const resp = await 
+      axios.get(`https://api.github.com/users/${this.state.userName}`);
+    this.props.onSubmit(resp.data);
+    this.setState({userName: ''});
   };
 
   render() {
@@ -52,8 +50,9 @@ class Form extends React.Component {
         <form onSubmit={this.handleSubmit}>
           <input 
             type="text" 
+            value={this.state.userName}
+            onChange={event => this.setState({userName: event.target.value})}
             placeholder="Github username" 
-            ref={this.userNameInput}
             required 
           />
           <button>Add Card</button>
@@ -66,14 +65,20 @@ class Form extends React.Component {
 //App is going to be the container for the whole app.
 class App extends React.Component {
   state = {
-    profiles: testData,
+    profiles: [],
   }
+
+  addNewProfile = (profileData) => {
+    this.setState(prevState => ({
+      profiles: [...prevState.profiles, profileData]
+    }))
+  };
 
   render() {
     return (
       <div>
         <div className="header">{this.props.title}</div>
-        <Form />
+        <Form onSubmit={this.addNewProfile} />
         <CardList profiles={this.state.profiles} />
       </div>
     );
