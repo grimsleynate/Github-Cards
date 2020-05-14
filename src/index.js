@@ -5,20 +5,18 @@ import * as serviceWorker from './serviceWorker';
 import axios from 'axios';
 
 //Card component for holding all the information about each person.
-class Card extends React.Component {
-  render () {
-    const profile = this.props;
-    return (
-      <div className="github-profile">
-        <img src={profile.avatar_url} alt=""/>
-        <div className="info">
-          <div className="name">{profile.name}</div>
-          <div className="company">{profile.company}</div>
-        </div>
+const Card = (props) => {
+  const profile = props;
+  return (
+    <div className="github-profile">
+      <img src={profile.avatar_url} alt=""/>
+      <div className="info">
+        <div className="name">{profile.name}</div>
+        <div className="company">{profile.company}</div>
       </div>
-    );
-  }
-}
+    </div>
+  );
+};
 
 //CardList component that returns an array of Cards
 const CardList = (props) => {
