@@ -29,12 +29,18 @@ const CardList = (props) => {
 //Form manages user input
 const Form = (props) => {
   const [userName, setUserName] = useState('');
+
   const handleSubmit = async (event) => {
     event.preventDefault();
-    const resp = await axios.get(`https://api.github.com/users/${userName}`);
-    props.onSubmit(resp.data);
-    setUserName('');
+    const resp = await axios.get(`https://api.github.com/users/${userName}`)
+        .catch(error404 => {
+          alert('That username does not exist, please try a different one.')
+          setUserName('');
+        });
+        props.onSubmit(resp.data);
+        setUserName('');
   };
+
   return (
     <div className="form">
       <form onSubmit={handleSubmit}>
