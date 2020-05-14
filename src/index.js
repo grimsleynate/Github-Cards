@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import * as serviceWorker from './serviceWorker';
@@ -20,68 +20,55 @@ const Card = (props) => {
 
 //CardList component that returns an array of Cards
 const CardList = (props) => {
-  return (<div> 
-    {/* .map() creates a new array out of an established array
-      This creates an array of Card components, and pushes an
-      object from testData into each*/}
+  return (
+  <div> 
     {props.profiles.map(profile=><Card key={profile.id} {...profile}/>)}
   </div>);
 };
 
 //Form manages user input
-class Form extends React.Component {
-  state = { userName: '',}
-  //every function comes with an event argument, you can name it whatever you want.  
-  //this allows you to use native event-related functions
-  handleSubmit = async (event) => {
-    //this prevents the page from refreshing when you submit.
+const Form = (props) => {
+  const [userName, setUserName] = useState('');
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    const resp = await 
-      axios.get(`https://api.github.com/users/${this.state.userName}`);
-    this.props.onSubmit(resp.data);
-    this.setState({userName: ''});
+    const resp = await axios.get(`https://api.github.com/users/${userName}`);
+    props.onSubmit(resp.data);
+    setUserName('');
   };
-
-  render() {
-    return (
-      <div className="form">
-        <form onSubmit={this.handleSubmit}>
-          <input 
-            type="text" 
-            value={this.state.userName}
-            onChange={event => this.setState({userName: event.target.value})}
-            placeholder="Github username" 
-            required 
-          />
-          <button>Add Card</button>
-        </form>
-      </div>
-    );
-  }
-}
+  return (
+    <div className="form">
+      <form onSubmit={handleSubmit}>
+        <input 
+          type="text" 
+          value={userName}
+          onChange={event => setUserName(event.target.value)}
+          placeholder="Github username" 
+          required 
+        />
+        <button>Add Card</button>
+      </form>
+    </div>
+  );
+};
 
 //App is going to be the container for the whole app.
-class App extends React.Component {
-  state = {
-    profiles: [],
-  }
 
-  addNewProfile = (profileData) => {
-    this.setState(prevState => ({
-      profiles: [...prevState.profiles, profileData]
-    }))
+const App = (props) => {
+  const [profiles, setProfiles] = useState([]);
+
+  const addNewProfile = (profileData) => {
+    setProfiles([...profiles, profileData]
+    );
   };
 
-  render() {
-    return (
-      <div>
-        <div className="header">{this.props.title}</div>
-        <Form onSubmit={this.addNewProfile} />
-        <CardList profiles={this.state.profiles} />
-      </div>
-    );
-  }
-}
+  return (
+    <div>
+      <div className="header">{props.title}</div>
+      <Form onSubmit={addNewProfile} />
+      <CardList profiles={profiles} />
+    </div>
+  );
+};
 
 ReactDOM.render(
   <App title="The Github Cards App" />,
